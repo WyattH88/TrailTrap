@@ -22,12 +22,31 @@ class GameState(object):
 
 class Minimax(object):
 
-    def __init__(self):
-        self.state = None
+    def __init__(self,start: GameState):
+        self.state = start
 
 
-    def minimax(self,state:GameState)->str:
+    def minimax(self,state:GameState)->bool:
+        if state.currentPlayer():
+            #player 1's turn
+            for move in  state.moves():
 
-        for move in  state.moves():
-            winner = self.minimax(state.makeMove(move))
+                winner = self.minimax(state.makeMove(move))
+                if winner:
+                    return True
+
+            #none of player 1's moves are winning moves
+            return False    
+
+        else:        
+            #player 2's turn
+            for move in  state.moves():
+                winner = self.minimax(state.makeMove(move))
+                if not(winner):
+                    #player 2 can win from this position
+                    return False
+
+            #none of player 2's moves are winning moves
+            return False    
+
 
