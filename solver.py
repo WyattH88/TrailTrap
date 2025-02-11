@@ -3,17 +3,17 @@ from graph import *
 
 class GameState(object):
     
-    def __init__(graph):
+    def __init__(self, graph):
         """pass in a graph for the game."""
         self.graph = graph
-        self.round = 0
-        self.P1Pos
-        self.P2Pos
+        self.round = 1
+        self.P1Pos = -1
+        self.P2Pos = -1
 
     
     def isTerminal(self)->bool:
         """returns true if no moves are available."""
-        return self.moves == []
+        return self.moves() == []
 
     def currentPlayer(self)->bool:
         """Returns true for player 1 and false for player 2"""
@@ -24,43 +24,61 @@ class GameState(object):
 
     def moves(self)->list[str]:
         """Returns a list of available edges that the current player can take"""
-        #No moves made
-        if(self.P1Pos == null):
-            return self.graph.edges()
+        #No starting position
+        Moves = []
+        if(self.P1Pos == -1 or self.P2Pos == -1):
+            Moves = self.graph.edges()
         else:
             #P1 turn
-            Moves
-            if(self.currentPlayer):
-                Moves =  self.graph.edges(from_node=P1Pos)
+            if(self.currentPlayer()):
+                Moves =  self.graph.edges(from_node=self.P1Pos)
             #P2 turn
             else:
-                Moves = self.graph.edges(from_node=P2Pos)
+                Moves = self.graph.edges(from_node=self.P2Pos)
         
         #filter used edges (edge value is 0 for not used and 1 for used)
-            returns = []
+        returns = []
             #makes a array of edges you can take
-            for i in Moves:
-                 if Moves[i] == 0:
-                    returns.append(Moves[i])
-            return returns
+        for i in Moves:
+            if i[2] == 0:
+                returns.append(i)
+        return returns
         
 
     def makeMove(self,move:str)->object:
-        """returns the gamestate with the move taken"""
-        
-        #incrment the turn conuter
-        self.round += 1
-        
+        """returns the gamestate with the move taken, returns false if the move is invalid"""
+        #change the move string into a more useful tuple
+        move =  move.strip("()").split(',')
+        move = (int(move[0]), int(move[1]))
+
+        #Check the move is valid
+        error = False
+        #Check move is from the players position
+        if(self.currentPlayer()):
+            #P1
+            if(move[0]!=self.P1Pos and self.P1Pos != -1):
+                error = True
+        else:
+            #P2
+            if(move[0]!=self.P2Pos and self.P2Pos != -1):
+                error = True
+        #check the edge is not already used or does not exist
+        if(self.graph.edge(move[0],move[1]) != 0):
+            error = True
+        #TODO use error
+
         #Update player position
-        if(self.currentPlayer):
+        if(self.currentPlayer()):
             #p1 turn 
-            self.P1pos = move.charAt(1)
+            self.P1Pos = int(move[1])
         else:
             #p2 turn
-            self.P2pos = move.charAt(1)
+            self.P2Pos = int(move[1])
         
-        #change the used edge to a 1 for used
-        self.graph.add_edge(move.charAt(0),move.charAt(1),value=1)
+        #change the used edge to a 1 for used (add changes to replace if the edge is to and from the same nodes)
+        self.graph.add_edge(int(move[0]),int(move[1]),value=1)
+        # #incrment the turn conuter
+        self.round += 1
         #return the new gamestate object
         return self
 
