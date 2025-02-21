@@ -1,4 +1,5 @@
 from graph import *
+import copy
 
 
 class GameState(object):
@@ -28,6 +29,7 @@ class GameState(object):
         Moves = []
         if(self.P1Pos == -1 or self.P2Pos == -1):
             Moves = self.graph.edges()
+            Moves += [(end,start,value) for (start,end,value) in self.graph.edges()]
         else:
             #P1 turn
             if(self.currentPlayer()):
@@ -41,7 +43,7 @@ class GameState(object):
             #makes a array of edges you can take
         for i in Moves:
             if i[2] == 0:
-                returns.append(i)
+                returns.append(str(i))
         return returns
         
 
@@ -67,20 +69,22 @@ class GameState(object):
             error = True
         #TODO use error
 
+        newGame = copy.deepcopy(self)
         #Update player position
         if(self.currentPlayer()):
             #p1 turn 
-            self.P1Pos = int(move[1])
+            newGame.P1Pos = int(move[1])
         else:
             #p2 turn
-            self.P2Pos = int(move[1])
+            newGame.P2Pos = int(move[1])
         
         #change the used edge to a 1 for used (add changes to replace if the edge is to and from the same nodes)
-        self.graph.add_edge(int(move[0]),int(move[1]),value=1)
+        newGame.graph.add_edge(int(move[0]),int(move[1]),value=1)
+        newGame.graph.add_edge(int(move[1]),int(move[0]),value=1) #add the reverse edge to deal with the first move
         # #incrment the turn conuter
-        self.round += 1
+        newGame.round += 1
         #return the new gamestate object
-        return self
+        return newGame
 
 
 class Minimax(object):
@@ -89,27 +93,42 @@ class Minimax(object):
         self.state = start
 
 
+    def winner(self):
+        result = self.minimax(self.state)
+        if result:
+            return "P1-win"
+        else: 
+            return "P2-win"
+
     def minimax(self,state:GameState)->bool:
         if state.currentPlayer():
             #player 1's turn
-            for move in  state.moves():
 
+            #print("player 1's turn:")
+            #print(state.moves())
+            for move in  state.moves():
+                #print(f"Player 1 playing move {move}")
                 winner = self.minimax(state.makeMove(move))
                 if winner:
                     return True
 
             #none of player 1's moves are winning moves
+            #print("Player 1 loses at this point.")
             return False    
 
         else:        
             #player 2's turn
-            for move in  state.moves():
+            #print("player 2's turn:")
+            #print(state.moves())
+            for move in state.moves():
+                #print(f"Player 2 playing move {move}")
                 winner = self.minimax(state.makeMove(move))
                 if not(winner):
                     #player 2 can win from this position
                     return False
 
             #none of player 2's moves are winning moves
-            return False    
+            #print("Player 2 loses at this point.")
+            return True    
 
 

@@ -1,12 +1,15 @@
 from graph import *
-from solver import GameState
+from solver import GameState, Minimax
 #Create Graph
 g = Graph()
+
 
 #node = vertex
 # dict vtx: {vtxs edges to}
 #this is C3 to do testing on
 g.from_list([(1,2,0), (2,3, 0), (3,1, 0)])
+
+
 
 game1 = GameState(g)
 
@@ -23,8 +26,10 @@ if(game1.isTerminal()):
 else:
     print("false")
 
-print("test 3: returning the list of moves, Output [(1, 2, 0), (2, 3, 0), (3, 1, 0)]")
+print("test 3: returning the list of moves, Output [(1, 2, 0), (2, 3, 0), (3, 1, 0),(2,1,0),(2,3,0),(1,3,0)]")
 print(game1.moves())
+for move in game1.moves():
+    print(f"Move: {move} has type {type(move)}")
 
 print("test 4: Updates current player when advancing the gamestate, Output false")
 game2 = game1.makeMove("(1,2)")
